@@ -27,3 +27,18 @@ def test_product_list(api_client, user):
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
     assert response.data['results'][0]['name'] == 'Table'
+
+
+def test_shop_create_requires_auth(api_client):
+    url = reverse('api:artisanshop-list')
+    data = {'name': 'Test Shop'}
+    response = api_client.post(url, data)
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_shop_create_authenticated(authenticated_api_client, user):
+    url = reverse('api:artisanshop-list')
+    data = {'name': 'Test Shop'}
+    response = authenticated_api_client.post(url, data)
+    assert response.status_code == status.HTTP_201_CREATED
+    assert ArtisanShop.objects.filter(name='Test Shop', owner=user).exists()
