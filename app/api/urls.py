@@ -5,6 +5,7 @@ from .views import (
     ArtisanShopViewSet,
     CategoryViewSet,
     HealthCheckView,
+    InventoryAlertViewSet,
     OrderViewSet,
     ProductViewSet,
     UserRegistrationView,
@@ -15,6 +16,7 @@ router.register(r'categories', CategoryViewSet)
 router.register(r'shops', ArtisanShopViewSet)
 router.register(r'products', ProductViewSet)
 router.register(r'orders', OrderViewSet)
+router.register(r'inventory-alerts', InventoryAlertViewSet, basename='inventory-alerts')
 
 urlpatterns = [
     path('', include(router.urls)),
