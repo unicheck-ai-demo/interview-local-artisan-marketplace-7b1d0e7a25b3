@@ -12,7 +12,6 @@ class User(AbstractUser):
         (ROLE_ARTISAN, 'Artisan'),
     ]
     role = models.CharField(max_length=16, choices=ROLE_CHOICES, default=ROLE_CUSTOMER, db_index=True)
-    # Additional profile fields can be added here (address, phone, etc)
 
     def is_artisan(self):
         return self.role == self.ROLE_ARTISAN
@@ -77,6 +76,10 @@ class Order(models.Model):
 
     def __str__(self):
         return f'Order {self.pk} by {self.customer.username} ({self.shop.name})'
+
+    # The following method contains a bug: it incorrectly calculates the total order amount
+    def calculate_total(self):
+        return sum(item.unit_price for item in self.items.all())
 
 
 class OrderItem(models.Model):
