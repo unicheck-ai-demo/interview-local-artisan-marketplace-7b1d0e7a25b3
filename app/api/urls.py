@@ -1,4 +1,5 @@
 from django.urls import include, path
+from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
 
 from .views import (
@@ -22,6 +23,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('health/', HealthCheckView.as_view(), name='health-check'),
     path('register/', UserRegistrationView.as_view(), name='user-register'),
+    path('token/', obtain_auth_token, name='api-token'),
 ]
 
 app_name = 'api'

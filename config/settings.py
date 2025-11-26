@@ -22,6 +22,8 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'django_redis',
+    'drf_spectacular',
+    'rest_framework.authtoken',
     # Application
     'app.apps.AppConfig',
 ]
@@ -91,7 +93,13 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Local Artisan Marketplace API',
+    'DESCRIPTION': 'Connect artisans and customers for handmade goods.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 CACHES = {'default': env.cache('CACHE_URL', default='redis://localhost:6379/0')}
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'

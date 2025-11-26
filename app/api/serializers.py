@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from app.models import ArtisanShop, Category, Order, OrderItem, Product
+from app.models import ArtisanShop, Category, Order, Product
+from app.services import create_order
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -56,17 +57,8 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at', 'shop']
 
 
-class OrderItemSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
-    product_id = serializers.PrimaryKeyRelatedField(source='product', queryset=Product.objects.all(), write_only=True)
-
-    class Meta:
-        model = OrderItem
-        fields = ['id', 'product', 'product_id', 'quantity', 'unit_price', 'total_price']
-
-
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True)
+    items = serializers.ListField(child=serializers.DictField(), write_only=True)
     shop = ArtisanShopSerializer(read_only=True)
     shop_id = serializers.PrimaryKeyRelatedField(source='shop', queryset=ArtisanShop.objects.all(), write_only=True)
 
@@ -76,18 +68,22 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'total_amount', 'status', 'customer', 'shop']
 
     def create(self, validated_data):
+        request = self.context['request']
+        customer = request.user
+        shop = validated_data['shop']
         items_data = validated_data.pop('items')
-        order = Order.objects.create(customer=self.context['request'].user, shop=validated_data['shop'])
-        total_amount = 0
+        item_args = []
         for item in items_data:
-            product = item['product']
-            quantity = item['quantity']
-            unit_price = product.price
-            total_price = unit_price * quantity
-            OrderItem.objects.create(
-                order=order, product=product, quantity=quantity, unit_price=unit_price, total_price=total_price
-            )
-            total_amount += total_price
-        order.total_amount = total_amount
-        order.save()
+            product_id = item.get('product_id')
+            if not product_id:
+                raise serializers.ValidationError('product_id is required for each item')
+            product = Product.objects.get(pk=product_id)
+            quantity = item.get('quantity')
+            if not quantity or quantity < 1:
+                raise serializers.ValidationError('quantity must be >= 1 for each item')
+            item_args.append({'product': product, 'quantity': quantity})
+        try:
+            order = create_order(customer, shop, item_args)
+        except Exception as exc:
+            raise serializers.ValidationError(str(exc))
         return order

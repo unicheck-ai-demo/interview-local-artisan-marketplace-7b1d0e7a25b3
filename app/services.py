@@ -4,44 +4,9 @@ from django.db import transaction
 from django.db.models import F, Sum, Window
 from django.db.models.functions import Rank
 
-from .models import ArtisanShop, Category, InventoryAlert, Order, OrderItem, Product, User
+from .models import InventoryAlert, Order, OrderItem, Product
 
 redis_client = redis.Redis.from_url(settings.CACHES['default']['LOCATION'])
-
-
-def create_user(username, password, role):
-    user = User.objects.create_user(username=username, password=password, role=role)
-    return user
-
-
-def create_category(name, description=None):
-    return Category.objects.create(name=name, description=description)
-
-
-def create_shop(owner, name, location=None, description=None):
-    shop = ArtisanShop.objects.create(owner=owner, name=name, description=description, location=location)
-    return shop
-
-
-def create_product(shop, name, price, quantity, category, location=None, description=None):
-    product = Product.objects.create(
-        shop=shop,
-        name=name,
-        price=price,
-        quantity=quantity,
-        category=category,
-        location=location,
-        description=description,
-    )
-    return product
-
-
-def get_shop_products(shop):
-    return Product.objects.filter(shop=shop)
-
-
-def get_order(order_id):
-    return Order.objects.prefetch_related('items').get(pk=order_id)
 
 
 def create_order(customer, shop, items):

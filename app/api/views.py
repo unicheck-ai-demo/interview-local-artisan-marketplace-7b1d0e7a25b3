@@ -67,8 +67,8 @@ class ProductViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Missing latitude/longitude'}, status=status.HTTP_400_BAD_REQUEST)
         point = Point(float(lng), float(lat), srid=4326)
         category = None
-        if category_id:
-            Category.objects.filter(pk=category_id).first()
+        if category_id is not None:
+            category = Category.objects.filter(pk=category_id).first()
         products = geolocation_product_search(point, radius, category)
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
