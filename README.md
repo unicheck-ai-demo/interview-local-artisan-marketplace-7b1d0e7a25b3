@@ -42,16 +42,63 @@ Good luck and enjoy!
 
 ## About Project
 
+A production-like e-commerce platform that connects local artisans with customers seeking handmade goods. The system allows artisans to register their shops, list products, manage inventories, handle orders, and process local delivery scheduling. Customers can browse products via categories, filter by artisan location, place orders, and track deliveries. The platform also supports store-level sales analytics and inventory alerts. Designed for realistic business impact and to simulate challenges of real-world systems with multiple related data models, complex queries, and transactional integrity.
+
+[see more details](docs/)
+
 ### Tech Stack
 
 - Python: 3.11
 - Django: 4
-- Celery: 5
 - API: Django REST Framework
 - Database: PostgreSQL 15
 - Caching: Redis 7
 - Testing: Pytest, Pytest-Django
 - Dependency Management: `requirements.txt`
+
+
+### Project Structure Overview
+```bash
+> tree -a --gitignore /app 
+.
+├── .env.example
+├── Dockerfile
+├── Makefile
+├── README.md
+├── app
+│   ├── api
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── apps.py
+│   ├── migrations
+│   │   └── 0001_initial.py
+│   ├── models.py
+│   ├── services.py
+│   └── tasks.py
+├── config
+│   ├── asgi.py
+│   ├── celery.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── docker-compose.yml
+├── docs
+│   └── README.md
+├── manage.py
+├── pyproject.toml
+├── requirements.txt
+└── tests
+    ├── api
+    │   ├── test_api_endpoints.py
+    │   └── test_health.py
+    ├── app
+    │   └── test_models.py
+    └── conftest.py
+
+9 directories, 26 files
+
+```
 
 ---
 Contact: [info@unicheck.ai](mailto:info@unicheck.ai)

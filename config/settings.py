@@ -4,19 +4,13 @@ from pathlib import Path
 import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 env = environ.Env(DEBUG=(bool, False))
-
 ENV_FILE_PATH = BASE_DIR / '.env'
 if os.path.exists(ENV_FILE_PATH):
     environ.Env.read_env(ENV_FILE_PATH)
-
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key-for-dev')
-
 DEBUG = env('DEBUG')
-
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -28,10 +22,11 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'django_redis',
+    'drf_spectacular',
+    'rest_framework.authtoken',
     # Application
     'app.apps.AppConfig',
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -41,9 +36,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 ROOT_URLCONF = 'config.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -59,19 +52,15 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
-
-
 DATABASES = {
     'default': {
         **env.db('DATABASE_URL', default='postgres://dbuser:dbpassword@db:5432/appdb'),
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
     }
 }
-
-
+AUTH_USER_MODEL = 'app.User'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -86,23 +75,14 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
 STATIC_URL = 'static/'
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
@@ -113,14 +93,17 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
-
-
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Local Artisan Marketplace API',
+    'DESCRIPTION': 'Connect artisans and customers for handmade goods.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
 CACHES = {'default': env.cache('CACHE_URL', default='redis://localhost:6379/0')}
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
-
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://cache:6379/0')
 CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default=CELERY_BROKER_URL)
 CELERY_ACCEPT_CONTENT = ['json']
@@ -129,8 +112,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_DEFAULT_QUEUE = env('CELERY_DEFAULT_QUEUE', default='default')
 CELERY_BEAT_SCHEDULE = {}
-
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
