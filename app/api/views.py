@@ -17,6 +17,7 @@ from app.services import (
     artisan_dashboard_kpis,
     geolocation_product_search,
     get_inventory_alerts,
+    recommend_products,
 )
 
 
@@ -71,6 +72,13 @@ class ProductViewSet(viewsets.ModelViewSet):
             category = Category.objects.filter(pk=category_id).first()
         products = geolocation_product_search(point, radius, category)
         serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny], url_path='recommendations')
+    def recommendations(self, request, pk=None):
+        product = self.get_object()
+        recs = recommend_products(product)
+        serializer = ProductSerializer(recs, many=True)
         return Response(serializer.data)
 
 

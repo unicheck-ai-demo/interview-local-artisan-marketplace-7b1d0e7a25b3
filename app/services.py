@@ -87,3 +87,8 @@ def artisan_dashboard_kpis(shop):
         'low_stock_products': list(low_stock_products),
         'active_alerts': alerts.count(),
     }
+
+
+def recommend_products(product, limit=5):
+    # Candidate should implement recommendation logic here
+    return Product.objects.none()
